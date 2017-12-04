@@ -16,4 +16,4 @@ set fp        [open "input" r]
 set file_data [read $fp]
 close $fp
 
-puts "The anser is: [sum_adjacent $file_data]"
+puts "The answer is: [sum_adjacent $file_data]"
