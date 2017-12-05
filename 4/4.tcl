@@ -42,6 +42,7 @@ foreach row $rows {
 	incr invalid
     }
 }
+puts ""
+puts "Valid (part 2): $valid"
+puts "Invalid (part 2): $invalid"
 
-puts "Valid: $valid"
-puts "Invalid: $invalid"
