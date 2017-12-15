@@ -16,32 +16,18 @@ proc init_firewall {} {
     global firewall
     global indata
     global maxlayer
+    set last_layer 0
     foreach data $indata {
 	set s [split $data ": "]
 	set layer [lindex $s 0]
 	set depth [lindex $s 2]
-	
-	set firewall($layer) [list 0 $depth 1]
-	set maxlayer $layer
-    }
-}
 
-proc firewall_move {} {
-    global firewall
-    foreach {key value} [array get firewall] {
-	set cur [lindex $value 0]
-	set depth [lindex $value 1]
-	set dir [lindex $value 2]
-	
-	set cur [expr $cur + $dir]
-	if {$cur >= [expr $depth - 1] || $cur == 0} {
-	    if {$dir == 1} {
-		set dir -1
-	    } else {
-		set dir 1
-	    }
+	for {set i $last_layer} {$i < [expr $layer - 1]} {incr i} {
+	    lappend firewall 0
 	}
-	set firewall($key) [list $cur $depth $dir]
+	lappend firewall $depth
+	set maxlayer $layer
+	set last_layer $layer
     }
 }
 
@@ -50,44 +36,39 @@ proc calc_score {} {
     global maxlayer
     set score 0
     for {set i 0} {$i <= $maxlayer} {incr i} {
-	if {[info exists firewall($i)]} {
-	    set value $firewall($i)
-	    if {[lindex $value 0] == 0} {
-		set score [expr $score + ([lindex $value 1] * $i)]
+	set value [lindex $firewall $i]
+	if {$value} {
+	    if {[expr $i % ((2 * ($value - 1)))] == 0} {
+		set score [expr $score + ($value * $i)]
 	    }
 	}
-	firewall_move
     }
     return $score
 }
 
-proc check_caught {} {
+proc check_caught {offset} {
     global firewall
     global maxlayer
     for {set i 0} {$i <= $maxlayer} {incr i} {
-	if {[info exists firewall($i)]} {
-	    set value $firewall($i)
-	    if {[lindex $value 0] == 0} {
+	set value [lindex $firewall $i]
+	if {$value} {
+	    if {[expr [expr $offset + $i] % ((2 * ($value - 1)))] == 0} {
 		return 1
 	    }
 	}
-	firewall_move
     }
     return 0
 }
 
 init_firewall
-array set blank_firewall [array get firewall]
+
 puts "Score: [calc_score]"
 
 set delay 0
 set score 1
 while {$score != 0} {
-    array set firewall [array get blank_firewall]
-    firewall_move
-    array set blank_firewall [array get firewall]
     incr delay
-    set score [check_caught]
+    set score [check_caught $delay]
 }
 
 puts "Delay without getting stuck: $delay"
