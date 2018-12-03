@@ -18,8 +18,8 @@ set first      1
 
 while 1 {
     # Loop through the frequency changes
-    foreach data $indata {
-        set frequency [expr $frequency + $data]
+    foreach change $indata {
+        set frequency [expr $frequency + $change]
         if {[info exists visited($frequency)]} {
             puts "Second answer: $frequency"
             exit
