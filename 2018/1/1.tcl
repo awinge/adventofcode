@@ -12,21 +12,24 @@ foreach row [split $fd "\n"] {
     }
 }
 
-set result 0
+set frequency  0
 set visited(0) 1
-set first 1
+set first      1
 
 while 1 {
+    # Loop through the frequency changes
     foreach data $indata {
-        set result [expr $result + $data]
-        if {[info exists visited($result)]} {
-            puts "Second answer: $result"
+        set frequency [expr $frequency + $data]
+        if {[info exists visited($frequency)]} {
+            puts "Second answer: $frequency"
             exit
         }
-        set visited($result) 1
+        set visited($frequency) 1
     }
+
+    # If it is the first loop, output the answer
     if {$first == 1} {
-        puts "First answer: $result"
+        puts "First answer: $frequency"
         set first 0
     }
 }
