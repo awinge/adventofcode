@@ -57,30 +57,25 @@ foreach adapter $adapters {
 proc get_combinations {jolt} {
     upvar 1 connections connections
     upvar 1 device device
-    upvar 1 stop stop
+    upvar 1 memo memo
+
+    if {[info exists memo($jolt)]} {
+        return $memo($jolt)
+    }
 
     if {$jolt == $device} {
-        set stop $device
         return 1
     }
-    if {[info exist connections($jolt)]} {
-        if {[llength $connections($jolt)] == 1} {
-            set stop $jolt
-            return 1
-        }
 
+    if {[info exist connections($jolt)]} {
         foreach connection $connections($jolt) {
             incr total [get_combinations $connection]
         }
+        set memo($jolt) $total
         return $total
     } else {
         return 0
     }
 }
 
-lappend combinations [get_combinations $outlet]
-while {$stop != $device} {
-    lappend combinations [get_combinations $connections($stop)]
-}
-
-puts "Total arrangements: [expr [join $combinations *]]"
+puts "Total arrangements: [get_combinations $outlet]"
